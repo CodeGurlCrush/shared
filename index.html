@@ -3,28 +3,80 @@
 <head>
   <title>Simulated Network Scanner</title>
   <style>
-    body { background: #111; color: #0f0; font-family: monospace; padding: 20px; }
-    input, button { margin: 10px; padding: 5px; }
-    #output { white-space: pre-wrap; }
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    input, button {
+      margin: 10px;
+      padding: 5px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+    }
+    #output {
+      white-space: pre-wrap;
+      margin-top: 20px;
+    }
+    #summary {
+      margin-top: 20px;
+      border-top: 1px dashed #0f0;
+      padding-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h2>Simulated Network Scanner</h2>
+  <h2>🔍 Simulated Network Scanner</h2>
   <input type="text" id="range" placeholder="e.g. 192.168.1." />
-  <button onclick="scan()">Scan</button>
+  <button onclick="scan()">Start Scan</button>
+
   <div id="output"></div>
+  <div id="summary"></div>
 
   <script>
     async function scan() {
       const range = document.getElementById("range").value;
       const output = document.getElementById("output");
-      output.innerHTML = "Starting scan...\n";
-      for (let i = 1; i <= 10; i++) {
-        output.innerHTML += `Scanning ${range}${i}... `;
-        await new Promise(r => setTimeout(r, 300));
-        const online = Math.random() > 0.4;
-        output.innerHTML += online ? "Online ✅\n" : "Offline ❌\n";
+      const summary = document.getElementById("summary");
+
+      if (!range) {
+        output.innerHTML = "⚠️ Please enter an IP range (e.g. 192.168.1.)\n";
+        return;
       }
+
+      output.innerHTML = "📡 Starting scan...\n";
+      summary.innerHTML = "";
+
+      let total = 0;
+      let onlineCount = 0;
+      let offlineCount = 0;
+
+      for (let i = 1; i <= 10; i++) {
+        const ip = `${range}${i}`;
+        output.innerHTML += `🔎 Scanning ${ip}... `;
+        await new Promise(r => setTimeout(r, 300));
+
+        const isOnline = Math.random() > 0.4;
+        output.innerHTML += isOnline ? "✅ Online\n" : "❌ Offline\n";
+
+        total++;
+        if (isOnline) onlineCount++;
+        else offlineCount++;
+      }
+
+      const uptimePercent = ((onlineCount / total) * 100).toFixed(2);
+
+      summary.innerHTML = `
+      === Scan Summary ===\n
+      Total Hosts Scanned: ${total}
+      Online Hosts       : ${onlineCount}
+      Offline Hosts      : ${offlineCount}
+      Uptime Percentage  : ${uptimePercent}%
+      `;
+
+      output.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   </script>
 </body>
